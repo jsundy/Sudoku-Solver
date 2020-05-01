@@ -3,15 +3,15 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class Chromosome {
-    public static int[] givens;
+    public static ArrayList<int[]> givens;
     public ArrayList<int[]> genes;
 
     Chromosome(Random random){
         genes = new ArrayList<>();
         int row [] = new int[9];
-
+        int cnt = 0;
         for (int i=0; i<81; i++){
-            row[i%9] = givens[i];
+            row[i%9] = givens.get(cnt)[i%9];
 
             if ((i+1)%9==0){
                 Integer [] set = {1,2,3,4,5,6,7,8,9};
@@ -31,8 +31,8 @@ public class Chromosome {
                 }
                 genes.add(row);
                 row = new int[9];
+                ++cnt;
             }
         }
     }
-
 }

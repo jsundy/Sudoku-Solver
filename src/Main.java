@@ -9,6 +9,7 @@ public class Main {
     private static int POPULATION_SIZE = 15;
     private static long seed = System.currentTimeMillis();
     private static Random random = new Random();
+    private static FitnessFunction ff = new FitnessFunction();
 
     public static void main(String[] args) {
         random.setSeed(seed);
@@ -22,10 +23,20 @@ public class Main {
             printChromosome(population.get(i));
         }
 
+        int [] fitness;
+        do {
+            fitness = new int[POPULATION_SIZE];
+            for (int i=0; i< POPULATION_SIZE; i++){
+                fitness[i] = ff.evaluateFitness(population.get(i));
+            }
+
+        }while (fitness[0] != 0);
+
     }
 
-    public static int[] readFile(String fn){
+    public static ArrayList<int[]> readFile(String fn){
         int [] givens = new int[81];
+        ArrayList<int[]> to_return = new ArrayList<>();
         int [] subgridIndex = {
                 0,1,2,9,10,11,18,19,20,
                 3,4,5,12,13,14,21,22,23,
@@ -59,7 +70,15 @@ public class Main {
             }
         }
 
-        return givens;
+        int [] grid = new int[9];
+        for (int i=0; i<81; i++){
+            grid[i%9] = givens[i];
+            if ((i+1)%9==0){
+                to_return.add(grid);
+                grid = new int[9];
+            }
+        }
+        return to_return;
     }
 
     private static void printChromosome(Chromosome chromosome){
