@@ -20,10 +20,8 @@ public class Main {
         do {
             for (int i=0; i< POPULATION_SIZE; i++)
                 population.get(i).setFitness(ff.evaluateFitness(population.get(i)));
-            ff.agingFactor();
-            Collections.sort(population);
-            ff.setBest(population.get(0));
 
+            Collections.sort(population);
             printPopulation(population);
 
         }while (population.get(0).getFitness()!=0);
@@ -78,7 +76,7 @@ public class Main {
     }
 
     private static void printPopulation(ArrayList<Chromosome> population) {
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < population.size(); i++) {
             String to_print = "Population " + i + "\nFitness:"+ population.get(i).getFitness() +"\n[\n";
             for (int j = 0; j < 9; j++)
                 to_print += '\t' + Arrays.toString(population.get(i).genes.get(j)) + "\n";

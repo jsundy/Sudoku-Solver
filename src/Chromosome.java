@@ -6,7 +6,6 @@ public class Chromosome implements Comparable {
     public static ArrayList<int[]> givens;
     public ArrayList<int[]> genes;
     private int fitness;
-    private int aging;
 
     Chromosome(Random random){
         genes = new ArrayList<>();
@@ -50,18 +49,6 @@ public class Chromosome implements Comparable {
     public int compareTo(Object o) {
         int compareFitness =((Chromosome)o).getFitness();
         return this.fitness-compareFitness;
-    }
-
-    public void incrementAging(){
-        ++this.aging;
-    }
-
-    public int getAging(){
-        return this.aging;
-    }
-
-    public void setAging(int aging){
-        this.aging = aging;
     }
 
 }
