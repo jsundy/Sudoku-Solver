@@ -1,9 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
     private static int POPULATION_SIZE = 15;
@@ -17,20 +14,19 @@ public class Main {
         Chromosome.givens = readFile("test files/1/s01c.txt");
 
         ArrayList<Chromosome> population = new ArrayList<>(POPULATION_SIZE);
-        for (int i=0; i<POPULATION_SIZE; i++){
+        for (int i=0; i<POPULATION_SIZE; i++)
             population.add(new Chromosome(random));
-            System.out.print("\n\nPopulation: "+(i+1)+"\n");
-            printChromosome(population.get(i));
-        }
 
-        int [] fitness;
         do {
-            fitness = new int[POPULATION_SIZE];
-            for (int i=0; i< POPULATION_SIZE; i++){
-                fitness[i] = ff.evaluateFitness(population.get(i));
-            }
+            for (int i=0; i< POPULATION_SIZE; i++)
+                population.get(i).setFitness(ff.evaluateFitness(population.get(i)));
+            ff.agingFactor();
+            Collections.sort(population);
+            ff.setBest(population.get(0));
 
-        }while (fitness[0] != 0);
+            printPopulation(population);
+
+        }while (population.get(0).getFitness()!=0);
 
     }
 
@@ -81,11 +77,13 @@ public class Main {
         return to_return;
     }
 
-    private static void printChromosome(Chromosome chromosome){
-        String to_print="[\n";
-        for (int i=0;i<9;i++)
-            to_print += '\t' + Arrays.toString(chromosome.genes.get(i)) +"\n";
-        to_print+="]";
-        System.out.print(to_print);
+    private static void printPopulation(ArrayList<Chromosome> population) {
+        for (int i = 0; i < 1; i++) {
+            String to_print = "Population " + i + "\nFitness:"+ population.get(i).getFitness() +"\n[\n";
+            for (int j = 0; j < 9; j++)
+                to_print += '\t' + Arrays.toString(population.get(i).genes.get(j)) + "\n";
+            to_print += "]\n\n";
+            System.out.print(to_print);
+        }
     }
 }

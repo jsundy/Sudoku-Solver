@@ -2,9 +2,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-public class Chromosome {
+public class Chromosome implements Comparable {
     public static ArrayList<int[]> givens;
     public ArrayList<int[]> genes;
+    private int fitness;
+    private int aging;
 
     Chromosome(Random random){
         genes = new ArrayList<>();
@@ -35,4 +37,31 @@ public class Chromosome {
             }
         }
     }
+
+    public void setFitness(int fitness){
+        this.fitness = fitness;
+    }
+
+    public int getFitness(){
+        return this.fitness;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        int compareFitness =((Chromosome)o).getFitness();
+        return this.fitness-compareFitness;
+    }
+
+    public void incrementAging(){
+        ++this.aging;
+    }
+
+    public int getAging(){
+        return this.aging;
+    }
+
+    public void setAging(int aging){
+        this.aging = aging;
+    }
+
 }

@@ -1,7 +1,8 @@
 import java.util.*;
 
 public class FitnessFunction {
-    public Vector<Chromosome> best;
+    private Chromosome previousBest = null;
+    private Chromosome currentBest = null;
 
     public int evaluateFitness(Chromosome chromosome){
         int fitness=0;
@@ -11,7 +12,15 @@ public class FitnessFunction {
             fitness += getColFitness(i, chromosome);
             fitness += getRowFitness(i, chromosome);
         }
-        return fitness;
+
+        //aging factor
+        if (currentBest != null) {
+            if (fitness < currentBest.getFitness()+currentBest.getAging())
+                currentBest = chromosome;
+        }else
+            currentBest = chromosome;
+
+        return fitness+chromosome.getAging();
     }
 
     private int getRowFitness(int row_index, Chromosome chromosome) {
@@ -74,6 +83,19 @@ public class FitnessFunction {
                 penalty+=2;
         }
         return penalty;
+    }
+
+    public void setBest(Chromosome best){
+        this.previousBest = best;
+    }
+
+    public void agingFactor(){
+        if (previousBest!=null){
+            if (previousBest==currentBest)
+                previousBest.incrementAging();
+//            else
+//                previousBest.setAging(0);
+        }
     }
 
 }
