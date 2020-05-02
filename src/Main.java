@@ -3,27 +3,47 @@ import java.io.FileNotFoundException;
 import java.util.*;
 
 public class Main {
-    private static int POPULATION_SIZE = 15;
-    private static long seed = System.currentTimeMillis();
-    private static Random random = new Random();
+
     private static FitnessFunction ff = new FitnessFunction();
 
     public static void main(String[] args) {
-        random.setSeed(seed);
-
+        long seed = System.currentTimeMillis();
+        Meta.RANDOM.setSeed(seed);
         Chromosome.givens = readFile("test files/1/s01c.txt");
 
-        ArrayList<Chromosome> population = new ArrayList<>(POPULATION_SIZE);
-        for (int i=0; i<POPULATION_SIZE; i++)
-            population.add(new Chromosome(random));
+        //initial Generation
+        ArrayList<Chromosome> population = new ArrayList<>(Meta.POPULATION_SIZE);
+        for (int i=0; i<Meta.POPULATION_SIZE; i++) {
+            Chromosome chromosome = new Chromosome();
+            chromosome.randomizeGenes();
+            population.add(chromosome);
+        }
 
         do {
-            for (int i=0; i< POPULATION_SIZE; i++)
+            for (int i=0; i < Meta.POPULATION_SIZE; i++) {
                 population.get(i).setFitness(ff.evaluateFitness(population.get(i)));
+            }
+            //order population in ascending order based on fitness - goal is to minimize fitness
+            Collections.sort(population);   //Collections sort has O(n(log(n))) - uses a variant of merge sort
 
-            Collections.sort(population);
-            printPopulation(population);
+            GeneticOperator go = new GeneticOperator(population);
+            ArrayList<Chromosome> matingPool = go.generateMatingPool(); //generate mating pool using tournament selection
+            //apply Genetic Operators - Uniform Crossover and Mutations.
+            int children_to_generate_from_crossover = (int) Math.floor((1-Meta.CROSSOVER_PROBABILITY)*(Meta.POPULATION_SIZE));
+            for (int i=Meta.POPULATION_SIZE-1; i>=0; i--){
+                //implement Crossover based on crossover probability
+                if(i >= children_to_generate_from_crossover) {
+                    Chromosome p1, p2;
+                    //ensures that each parent is different
+                    do {
+                        p1 = matingPool.get(Meta.RANDOM.nextInt(matingPool.size() - 1));
+                        p2 = matingPool.get(Meta.RANDOM.nextInt(matingPool.size() - 1));
+                    } while (p1.equals(p2));
 
+                    population.remove(i);
+                    population.add(i, go.uniformCrossover(p1, p2));
+                }
+            }
         }while (population.get(0).getFitness()!=0);
 
     }
@@ -83,5 +103,12 @@ public class Main {
             to_print += "]\n\n";
             System.out.print(to_print);
         }
+    }
+
+    private static String printAverageFitness(ArrayList<Chromosome> population){
+        int avg = 0;
+        for (int i=0; i<Meta.POPULATION_SIZE; i++)
+            avg += population.get(i).getFitness();
+        return ": Avg fitness: "+avg/Meta.POPULATION_SIZE;
     }
 }

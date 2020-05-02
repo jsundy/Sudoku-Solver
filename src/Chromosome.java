@@ -1,14 +1,16 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 public class Chromosome implements Comparable {
     public static ArrayList<int[]> givens;
     public ArrayList<int[]> genes;
     private int fitness;
 
-    Chromosome(Random random){
-        genes = new ArrayList<>();
+    Chromosome(){
+        this.genes = new ArrayList<>();
+    }
+
+    public void randomizeGenes(){
         int row [] = new int[9];
         int cnt = 0;
         for (int i=0; i<81; i++){
@@ -25,7 +27,7 @@ public class Chromosome implements Comparable {
                 list.removeIf(o -> o.equals(-1));
                 for (int j=0; j<row.length; j++){
                     if (row[j] == 0){
-                        int index = random.nextInt(list.size());
+                        int index = Meta.RANDOM.nextInt(list.size());
                         row[j] = (int) list.get(index);
                         list.remove(index);
                     }
@@ -51,4 +53,8 @@ public class Chromosome implements Comparable {
         return this.fitness-compareFitness;
     }
 
+    @Override
+    public String toString() {
+        return this.fitness+"";
+    }
 }
