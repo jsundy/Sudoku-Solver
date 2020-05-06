@@ -16,58 +16,25 @@ public class FitnessFunction {
 
     private int getRowFitness(int row_index, Chromosome chromosome) {
         ArrayList<Integer> set = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9));
-        ArrayList<Integer> row = new ArrayList<>();
-        ArrayList<Integer> givens = new ArrayList<>();
-        int row_grid = getGrid(row_index)*3;
+        ArrayList<Integer> row = chromosome.getRow(row_index);
+        ArrayList<Integer> givens = chromosome.getGivenRow(row_index);
 
-        int offset = (row_index%3)*3;
-        for (int i=0; i<3; i++){
-            for (int j=0; j<3; j++){
-                row.add(chromosome.genes.get(row_grid+i)[offset+j]);
-                int t = Chromosome.givens.get(row_grid+i)[offset+j];
-                if (t!=0)
-                    givens.add(t);
-            }
-        }
         set.removeAll(row);
         return set.size()+sameDigitAsGiven(row,givens);
     }
 
     private int getColFitness(int col_index, Chromosome chromosome) {
         ArrayList<Integer> set = new ArrayList<>(Arrays.asList(1,2,3,4,5,6,7,8,9));
-        ArrayList<Integer> col = new ArrayList<>();
-        ArrayList<Integer> givens = new ArrayList<>();
-        int col_grid=getGrid(col_index);
-
-        int offset = col_index%3;
-        for (int i=0; i<3; i++){
-            int [] ch = chromosome.genes.get(col_grid+3*i);
-
-            for (int j=0; j<3; j++) {
-                col.add(ch[offset+ j*3]);
-                int t = Chromosome.givens.get(col_grid+3*i)[offset+ j*3];
-                if (t != 0)
-                    givens.add(t);
-            }
-        }
+        ArrayList<Integer> col = chromosome.getColumn(col_index);
+        ArrayList<Integer> givens = chromosome.getGivenColumn(col_index);
 
         set.removeAll(col);
         return set.size()+sameDigitAsGiven(col,givens);
     }
 
-    //helper functions
-    private int getGrid(int index){
-        if (index<3)
-            index=0;
-        else if (index<6)
-            index=1;
-        else
-            index=2;
-        return index;
-    }
-
     private int sameDigitAsGiven(ArrayList<Integer> set, ArrayList<Integer> givens){
         int penalty = 0;
+        givens.removeIf(o -> o.equals(0));
         for (int i=0; i<givens.size();i++) {
             int t = Collections.frequency(set, givens.get(i));
             if (t > 1)

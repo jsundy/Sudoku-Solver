@@ -57,4 +57,66 @@ public class Chromosome implements Comparable {
     public String toString() {
         return this.fitness+"";
     }
+
+    public ArrayList<Integer> getColumn(int col_index){
+        int col_grid=getGrid(col_index);
+        int offset = col_index%3;
+        ArrayList<Integer> col = new ArrayList<>();
+
+        for (int i=0; i<3; i++){
+            int [] ch = this.genes.get(col_grid+3*i);
+            for (int j=0; j<3; j++) {
+                col.add(ch[offset+ j*3]);
+            }
+        }
+        return col;
+    }
+
+    public ArrayList<Integer> getGivenColumn(int col_index){
+        ArrayList<Integer> givens = new ArrayList<>();
+        int col_grid=getGrid(col_index);
+        int offset = col_index%3;
+        for (int i=0; i<3; i++){
+            for (int j=0; j<3; j++) {
+                givens.add(Chromosome.givens.get(col_grid+3*i)[offset+ j*3]);
+            }
+        }
+        return givens;
+    }
+
+    public ArrayList<Integer> getRow(int row_index){
+        ArrayList<Integer> row = new ArrayList<>();
+        int row_grid = getGrid(row_index)*3;
+
+        int offset = (row_index%3)*3;
+        for (int i=0; i<3; i++){
+            for (int j=0; j<3; j++){
+                row.add(this.genes.get(row_grid+i)[offset+j]);
+            }
+        }
+        return row;
+    }
+
+    public ArrayList<Integer> getGivenRow(int row_index){
+        ArrayList<Integer> givens = new ArrayList<>();
+        int row_grid = getGrid(row_index)*3;
+
+        int offset = (row_index%3)*3;
+        for (int i=0; i<3; i++){
+            for (int j=0; j<3; j++){
+                givens.add(Chromosome.givens.get(row_grid+i)[offset+j]);
+            }
+        }
+        return givens;
+    }
+
+    public int getGrid(int index){
+        if (index<3)
+            index=0;
+        else if (index<6)
+            index=1;
+        else
+            index=2;
+        return index;
+    }
 }
