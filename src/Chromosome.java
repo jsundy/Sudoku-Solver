@@ -119,4 +119,14 @@ public class Chromosome implements Comparable {
             index=2;
         return index;
     }
+
+    public Chromosome clone(){
+        Chromosome to_return = new Chromosome();
+        for (int i=0; i<9;i++){
+            int [] sub_grid = this.genes.get(i).clone();
+            to_return.genes.add(i,sub_grid);
+        }
+
+        return to_return;
+    }
 }

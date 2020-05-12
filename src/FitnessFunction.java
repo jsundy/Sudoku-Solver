@@ -2,7 +2,7 @@ import java.util.*;
 
 public class FitnessFunction {
 
-    public int evaluateFitness(Chromosome chromosome){
+    public void evaluateFitness(Chromosome chromosome){
         int fitness=0;
 
         //calculate the number of missing digits in each row set and column set
@@ -11,7 +11,7 @@ public class FitnessFunction {
             fitness += getRowFitness(i, chromosome);
         }
 
-        return fitness;
+        chromosome.setFitness(fitness);
     }
 
     private int getRowFitness(int row_index, Chromosome chromosome) {

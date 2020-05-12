@@ -11,7 +11,7 @@ public class GeneticOperator {
     public ArrayList<Chromosome> generateMatingPool(){
         ArrayList<Chromosome> matingPool = new ArrayList<>();
         //mating pool size is the size of the number of children about to be generated
-        for (int i=Meta.MATING_POOL; i>=0; i--){
+        for (int i=Meta.MATING_POOL-1; i>=0; i--){
             int randomIndex = Meta.RANDOM.nextInt(Meta.POPULATION_SIZE-1);
             Chromosome p1 = this.population.get(randomIndex);
             Chromosome p2 = this.population.get(Meta.RANDOM.nextInt(Meta.POPULATION_SIZE-1));
@@ -22,8 +22,8 @@ public class GeneticOperator {
 
     private Chromosome tournamentSelection(Chromosome p1, Chromosome p2){
         double rand = Meta.RANDOM.nextInt();
-//        return p1.getFitness()<p2.getFitness()?p1:p2;
-        return rand<0?p1:p2;
+        return p1.getFitness()<p2.getFitness()?p1:p2;
+//        return rand<0?p1:p2;
     }
 
 

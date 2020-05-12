@@ -27,22 +27,22 @@ public class Main {
         for (int i=0; i<Meta.POPULATION_SIZE; i++) {
             Chromosome chromosome = new Chromosome();
             chromosome.randomizeGenes();
+            ff.evaluateFitness(chromosome);
             population.add(chromosome);
         }
+        Collections.sort(population);
 
-        do {
-            for (int i=0; i < Meta.POPULATION_SIZE; i++) {
-                population.get(i).setFitness(ff.evaluateFitness(population.get(i)));
-            }
-            //order population in ascending order based on fitness - goal is to minimize fitness
-            Collections.sort(population);   //Collections sort has O(n(log(n))) - uses a variant of merge sort
+        GeneticOperator go = new GeneticOperator(population);
 
-            GeneticOperator go = new GeneticOperator(population);
+        while (population.get(0).getFitness()!=0){
             ArrayList<Chromosome> matingPool = go.generateMatingPool(); //generate mating pool using tournament selection
             //apply Genetic Operators - Uniform Crossover and Mutations.
             int children_to_crossover = (int) Math.floor((1-Meta.CROSSOVER_PROBABILITY)*(Meta.POPULATION_SIZE));
             int children_to_mutate = (int) Math.floor((1-Meta.MUTATION_PROBABILITY)*(Meta.POPULATION_SIZE));
+
             for (int i=Meta.POPULATION_SIZE-1; i>=0; i--){
+                //choose random parent from matingpool to go to next generation
+                Chromosome ii;
                 //implement Crossover based on crossover probability
                 if(i >= children_to_crossover) {
                     Chromosome p1, p2;
@@ -51,21 +51,21 @@ public class Main {
                         p1 = matingPool.get(Meta.RANDOM.nextInt(matingPool.size() - 1));
                         p2 = matingPool.get(Meta.RANDOM.nextInt(matingPool.size() - 1));
                     } while (p1.equals(p2));
-                    population.remove(i);
-                    population.add(i, go.uniformCrossover(p1, p2));
-                }
+                    ii = go.uniformCrossover(p1, p2);
+                }else
+                    ii = matingPool.get(Meta.RANDOM.nextInt(Meta.POPULATION_SIZE-1)).clone();
+
                 //implement mutation
-                if(i >= children_to_mutate) {
-//                    int rand_chromosome = Meta.RANDOM.nextInt(Meta.POPULATION_SIZE - 1);
-                    go.mutation(population.get(i)); //chromosome i
-                }
+                if(i >= children_to_mutate)
+                    go.mutation(population.get(Meta.RANDOM.nextInt(Meta.POPULATION_SIZE-1))); //population.get(Meta.RANDOM.nextInt(Meta.POPULATION_SIZE-1))
 
-                if (i<children_to_crossover && i < children_to_mutate) {
-                    break;
-                }
-
+                ff.evaluateFitness(ii);
+                population.remove(i);
+                population.add(i, ii);
             }
-        }while (population.get(0).getFitness()!=0);
+            //order population in ascending order based on fitness - goal is to minimize fitness
+            Collections.sort(population);   //Collections sort has O(n(log(n))) - uses a variant of merge sort
+        }
         printSudoku(population.get(0));
 
     }
