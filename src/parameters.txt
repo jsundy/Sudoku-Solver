@@ -1,0 +1,7 @@
+population size:
+Mutation Probability:
+Crossover Probability:
+Mating Pool:
+Occurrences:
+Seed:
+Debug Mode:

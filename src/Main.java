@@ -5,6 +5,7 @@ import java.util.*;
 public class Main {
 
     private static FitnessFunction ff = new FitnessFunction();
+    private static Boolean debugMode;
     private static int [] subgridIndex = {
             0,1,2,9,10,11,18,19,20,
             3,4,5,12,13,14,21,22,23,
@@ -18,10 +19,15 @@ public class Main {
     };
 
     public static void main(String[] args) {
-        long seed = System.currentTimeMillis();
-        Meta.RANDOM.setSeed(seed);
-        Chromosome.givens = readFile("test files/1/s01c.txt");
 
+        try {
+            setParams(args[0]);
+            Chromosome.givens = readFile(args[1]);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+        printSudokuToSolve();
         //initial Generation
         ArrayList<Chromosome> population = new ArrayList<>(Meta.POPULATION_SIZE);
         for (int i=0; i<Meta.POPULATION_SIZE; i++) {
@@ -33,8 +39,12 @@ public class Main {
         Collections.sort(population);
 
         GeneticOperator go = new GeneticOperator(population);
-
+        int runs = 0;
         while (population.get(0).getFitness()!=0){
+            if (debugMode)
+                System.out.println("Run "+runs+": "+printAverageFitness(population));
+            ++runs;
+
             ArrayList<Chromosome> matingPool = go.generateMatingPool(); //generate mating pool using tournament selection
             //apply Genetic Operators - Uniform Crossover and Mutations.
             int children_to_crossover = (int) Math.floor((1-Meta.CROSSOVER_PROBABILITY)*(Meta.POPULATION_SIZE));
@@ -53,7 +63,7 @@ public class Main {
                     } while (p1.equals(p2));
                     ii = go.uniformCrossover(p1, p2);
                 }else
-                    ii = matingPool.get(Meta.RANDOM.nextInt(Meta.POPULATION_SIZE-1)).clone();
+                    ii = matingPool.get(Meta.RANDOM.nextInt(Meta.MATING_POOL-1)).clone();
 
                 //implement mutation
                 if(i >= children_to_mutate)
@@ -66,23 +76,54 @@ public class Main {
             //order population in ascending order based on fitness - goal is to minimize fitness
             Collections.sort(population);   //Collections sort has O(n(log(n))) - uses a variant of merge sort
         }
+        System.out.println("Generation: " + runs+"\nSeed: "+Meta.seed+'\n');
         printSudoku(population.get(0));
-
     }
 
-    public static ArrayList<int[]> readFile(String fn){
+    private static void setParams(String fn) throws FileNotFoundException {
+        File file = new File(fn);
+        Scanner scanner = new Scanner(file);
+        int row = 0;
+        while (scanner.hasNextLine()){
+            String line = scanner.nextLine();
+            String el = line.substring(line.indexOf(":")+1);
+            switch (row){
+                case 0:
+                    Meta.POPULATION_SIZE = Integer.parseInt(el);
+                    break;
+                case 1:
+                    Meta.MUTATION_PROBABILITY = Double.parseDouble(el)/100;
+                    break;
+                case 2:
+                    Meta.CROSSOVER_PROBABILITY = Double.parseDouble(el)/100;
+                    break;
+                case 3:
+                    Meta.MATING_POOL = Integer.parseInt(el);
+                    break;
+                case 4:
+                    Meta.OCCURRENCES = Integer.parseInt(el);
+                    break;
+                case 5:
+                    if (el.length()>0)
+                        Meta.seed = Long.parseLong(el);
+                    else
+                        Meta.seed = System.currentTimeMillis();
+                    Meta.RANDOM.setSeed(Meta.seed);
+                    break;
+                case 6:
+                    debugMode = Boolean.parseBoolean(el);
+                    break;
+            }
+            row++;
+        }
+    }
+
+    public static ArrayList<int[]> readFile(String fn) throws FileNotFoundException {
         int [] givens = new int[81];
         ArrayList<int[]> to_return = new ArrayList<>();
 
         File file = new File(fn);
-        Scanner scanner = null;
-
-        try {
-            scanner = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            return null;
-        }
+        Scanner scanner = new Scanner(file);
 
         int index=0;
         while(scanner.hasNextLine()){
@@ -106,21 +147,29 @@ public class Main {
         return to_return;
     }
 
-    private static void printPopulation(ArrayList<Chromosome> population) {
-        for (int i = 0; i < population.size(); i++) {
-            String to_print = "Population " + i + "\nFitness:"+ population.get(i).getFitness() +"\n[\n";
-            for (int j = 0; j < 9; j++)
-                to_print += '\t' + Arrays.toString(population.get(i).genes.get(j)) + "\n";
-            to_print += "]\n\n";
-            System.out.print(to_print);
-        }
-    }
-
     private static String printAverageFitness(ArrayList<Chromosome> population){
         int avg = 0;
         for (int i=0; i<Meta.POPULATION_SIZE; i++)
             avg += population.get(i).getFitness();
-        return ": Avg fitness: "+avg/Meta.POPULATION_SIZE;
+        return "Avg fitness: "+avg/Meta.POPULATION_SIZE;
+    }
+
+    public static void printSudokuToSolve(){
+        String toPrint = "";
+        int [] values = new int[81];
+        for (int i=0; i<9; i++){
+            int [] subgrid = Chromosome.givens.get(i);
+            for (int j=0; j<9; j++) {
+                values[i*9+j] = subgrid[j];
+            }
+        }
+        for (int i=0; i<values.length; i++){
+            toPrint += values[subgridIndex[i]]+" ";
+
+            if ((i+1)%9==0)
+                toPrint += "\n";
+        }
+        System.out.println(toPrint);
     }
 
     public static void printSudoku(Chromosome chromosome){
